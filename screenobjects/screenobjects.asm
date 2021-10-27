@@ -72,7 +72,8 @@ ScoreboardLoop:
     sta WSYNC
     iny
     cpy #10                     ; compare Y reg with #10
-    bne ScoreboardLoop          ; loop through 10 times
+    bne ScoreboardLoop          ; if the previous comparison is false (0)
+                                ; repeat the ScoreboardLoop (this is a while loop)
 
     lda #0
     sta PF1
@@ -81,14 +82,52 @@ ScoreboardLoop:
         sta WSYNC
     REPEND
 
+;; player 0 loop
+    ldy #0
+Player0Loop:
+    lda PlayerBitmap,Y 
+    sta GRP0
+    sta WSYNC
+    iny
+    cpy P0Height                ; compare Y with the P0Height value
+    bne Player0Loop             ; if not equal (i.e not zero) loop
+
+    lda #0
+    sta GRP0                    ; end player 0 graphics
+
+;; player 1 loop
+    ldy #0
+Player1Loop:
+    lda PlayerBitmap,Y 
+    sta GRP1
+    sta WSYNC
+    iny
+    cpy P1Height                ; compare Y with the P1Height value
+    bne Player1Loop             ; if not equal (i.e not zero) loop
+
+    lda #0
+    sta GRP1                    ; end player 0 graphics
+
+;;; finish drawing rest of background before the overflow
+    REPEAT 102 
+        sta WSYNC
+    REPEND
+
+
+;; overflow
+    REPEAT 30
+        sta WSYNC
+    REPEND
+
     jmp StartFrame
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Defines an array of bytes to draw the scoreboard number.
-;; We add these bytes in the last ROM addresses.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; define the bitmapts for objects we want to display on the frame
+;;; knowing that the rom ends at mem address FFFC we want to use the 
+;;; previous 20 bytes (10 per bitmap) to store the two bitmaps.
+;;; For this reason we start the first bitmap at FFE8 (20 away from FFFC)
+;;; and the second one at FFF2 (10 away from FFFC).
     org $FFE8
 PlayerBitmap:
     .byte #%01111110   ;  ######
