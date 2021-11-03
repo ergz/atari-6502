@@ -6,7 +6,7 @@
 
 ;;; player variables
     seg.u Variables         ; set an uninitialized segment in RAM
-    org $80                 ; set this at the position $80
+    org $80                 ; set this at the address position $80
 P0Height byte               ; set the p0 sprite height to be a byte in size 
 PlayerYPos byte             ; set the y position for the player to be a byte in size
 
@@ -17,8 +17,8 @@ PlayerYPos byte             ; set the y position for the player to be a byte in 
 Reset:
     CLEAN_START             ; clear ram and tia
 
-    ldx #$00                ; set background to black
-    stx COLUBK
+    ldx #$FF                ; load the hex value 00 to the X register
+    stx COLUBK              ; store the value in the X register to the Address COLUBK
 
 ;;; Initialize the variables we created above
 
@@ -32,21 +32,21 @@ Reset:
 ;;; Draw to Frame
 StartFrame:
 
-    lda #2
-    sta VBLANK              ; enable vblank                  
-    sta VSYNC               ; enable vsync
+    lda #2                  ; the literal value 2 is stored in A, #2 = %00000010
+    sta VBLANK              ; enable vblank, 00000010 enables VBLANK                 
+    sta VSYNC               ; enable vsync, 00000010 enables VSYNC
 
     REPEAT 3
         sta WSYNC
     REPEND
     lda #0 
-    sta VSYNC
+    sta VSYNC               ; disable VSYNC
 
     REPEAT 37
         sta WSYNC
     REPEND
     lda #0 
-    sta VBLANK
+    sta VBLANK              ; disable VBLANK
 
 ;;; Draw the visible 192 scanlines ----------------------------
 
@@ -104,7 +104,7 @@ P0Bitmap:
     byte #%00101000
     byte #%01110100
     byte #%11111010
-    byte #%11111010
+    byte #%00000000
     byte #%11111010
     byte #%11111110
     byte #%01101100
